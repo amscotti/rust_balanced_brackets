@@ -1,15 +1,13 @@
-extern crate indicatif;
-
-use std::collections::HashMap;
-use std::io::BufReader;
-use std::io::BufRead;
-use std::fs::File;
 use indicatif::ProgressBar;
+use std::collections::HashMap;
 use std::env;
+use std::fs::File;
+use std::io::BufRead;
+use std::io::BufReader;
 
 fn balanced_brackets(input: &str) -> &str {
     let mut stack: Vec<char> = Vec::new();
-    let mut lookup = HashMap::new();
+    let mut lookup: HashMap<char, char> = HashMap::with_capacity(3);
     lookup.insert('{', '}');
     lookup.insert('[', ']');
     lookup.insert('(', ')');
@@ -38,15 +36,12 @@ fn balanced_brackets(input: &str) -> &str {
     }
 }
 
-fn balanced_brackets_load(input: &String, output: &String) {
+fn balanced_brackets_load(input: &str, output: &str) {
     let input = File::open(input).unwrap();
-    let input_file = BufReader::new(&input);
-
     let output = File::open(output).unwrap();
-    let output_file = BufReader::new(&output);
 
-    let mut output_enumerate = output_file.lines().flat_map(|l| l.ok());
-    let mut input_enumerate = input_file.lines().flat_map(|l| l.ok());
+    let mut output_enumerate = BufReader::new(&output).lines().flat_map(|l| l.ok());
+    let mut input_enumerate = BufReader::new(&input).lines().flat_map(|l| l.ok());
 
     let count_of_input = input_enumerate.next().unwrap();
     let pb = ProgressBar::new(count_of_input.parse::<u64>().unwrap());
