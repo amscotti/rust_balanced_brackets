@@ -5,6 +5,9 @@ use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
 
+const YES: &str = "YES";
+const NO: &str = "NO";
+
 fn balanced_brackets(input: &str) -> &str {
     let mut stack: Vec<char> = Vec::new();
     let mut lookup: HashMap<char, char> = HashMap::with_capacity(3);
@@ -20,19 +23,17 @@ fn balanced_brackets(input: &str) -> &str {
         count = index;
         if lookup.contains_key(&c) {
             stack.push(c);
-            continue;
-        } else if !(stack.is_empty()) && lookup[stack.last().unwrap()] == c {
+        } else if !stack.is_empty() && lookup[stack.last().unwrap()] == c {
             stack.pop();
-            continue;
         } else {
             break;
         }
     }
 
     if (count == len_input - 1) && stack.is_empty() {
-        "YES"
+        YES
     } else {
-        "NO"
+        NO
     }
 }
 
