@@ -189,6 +189,7 @@ name = "rust_balanced_brackets"
 version = "0.1.0"
 dependencies = [
  "indicatif 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lazy_static 1.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
