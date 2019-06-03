@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate lazy_static;
+
 use indicatif::ProgressBar;
 use std::collections::HashMap;
 use std::env;
@@ -8,12 +11,18 @@ use std::io::BufReader;
 const YES: &str = "YES";
 const NO: &str = "NO";
 
+lazy_static! {
+    static ref LOOKUP: HashMap<char, char> = {
+        let mut lookup: HashMap<char, char> = HashMap::with_capacity(3);
+        lookup.insert('{', '}');
+        lookup.insert('[', ']');
+        lookup.insert('(', ')');
+        lookup
+    };
+}
+
 fn balanced_brackets(input: &str) -> &str {
     let mut stack: Vec<char> = Vec::new();
-    let mut lookup: HashMap<char, char> = HashMap::with_capacity(3);
-    lookup.insert('{', '}');
-    lookup.insert('[', ']');
-    lookup.insert('(', ')');
 
     let len_input = input.len();
     let mut count = 0;
@@ -21,9 +30,9 @@ fn balanced_brackets(input: &str) -> &str {
     for index in 0..len_input {
         let c = input.chars().nth(index).unwrap();
         count = index;
-        if lookup.contains_key(&c) {
+        if LOOKUP.contains_key(&c) {
             stack.push(c);
-        } else if !stack.is_empty() && lookup[stack.last().unwrap()] == c {
+        } else if !stack.is_empty() && LOOKUP[stack.last().unwrap()] == c {
             stack.pop();
         } else {
             break;
