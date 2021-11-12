@@ -1,45 +1,16 @@
-#[macro_use]
-extern crate lazy_static;
-
 use indicatif::ProgressBar;
-use std::collections::HashMap;
 use std::env;
 use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
 
+mod balanced_brackets;
+
 const YES: &str = "YES";
 const NO: &str = "NO";
 
-lazy_static! {
-    static ref LOOKUP: HashMap<char, char> = {
-        let mut lookup: HashMap<char, char> = HashMap::with_capacity(3);
-        lookup.insert('{', '}');
-        lookup.insert('[', ']');
-        lookup.insert('(', ')');
-        lookup
-    };
-}
-
-fn balanced_brackets(input: &str) -> &str {
-    let mut stack: Vec<char> = Vec::new();
-
-    let len_input = input.len();
-    let mut count = 0;
-
-    for index in 0..len_input {
-        let c = input.chars().nth(index).unwrap();
-        count = index;
-        if LOOKUP.contains_key(&c) {
-            stack.push(c);
-        } else if !stack.is_empty() && LOOKUP[stack.last().unwrap()] == c {
-            stack.pop();
-        } else {
-            break;
-        }
-    }
-
-    if (count == len_input - 1) && stack.is_empty() {
+fn bool_to_word(check: bool) -> &'static str {
+    if check {
         YES
     } else {
         NO
@@ -54,19 +25,21 @@ fn balanced_brackets_load(input: &str, output: &str) {
     let mut input_enumerate = BufReader::new(&input).lines().flat_map(|l| l.ok());
 
     let count_of_input = input_enumerate.next().unwrap();
-    let pb = ProgressBar::new(count_of_input.parse::<u64>().unwrap());
+    let bar = ProgressBar::new(count_of_input.parse::<u64>().unwrap());
+    
     for line in input_enumerate {
-        pb.inc(1);
+        bar.inc(1);
         let output = output_enumerate.next().unwrap();
-        if output != balanced_brackets(&line) {
-            println!("{} {}", line, output);
-            break;
+        let output_check = balanced_brackets::is_balanced(&line);
+
+        if output != bool_to_word(output_check) {
+            println!("{} {}", output, line);
         }
     }
-    pb.finish_with_message("done");
+    bar.finish();
 }
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    balanced_brackets_load(&args[1], &args[2])
+    balanced_brackets_load(&args[1], &args[2]);
 }
