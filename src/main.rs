@@ -21,19 +21,18 @@ fn balanced_brackets_load(input: &str, output: &str) {
     let input = File::open(input).unwrap();
     let output = File::open(output).unwrap();
 
-    let mut output_enumerate = BufReader::new(&output).lines().flat_map(|l| l.ok());
+    let output_enumerate = BufReader::new(&output).lines().flat_map(|l| l.ok());
     let mut input_enumerate = BufReader::new(&input).lines().flat_map(|l| l.ok());
 
-    let count_of_input = input_enumerate.next().unwrap();
-    let bar = ProgressBar::new(count_of_input.parse::<u64>().unwrap());
-    
-    for line in input_enumerate {
+    let count_of_input = input_enumerate.next().unwrap().parse::<u64>().unwrap();
+    let bar = ProgressBar::new(count_of_input);
+
+    for (input,output) in input_enumerate.zip(output_enumerate) {
         bar.inc(1);
-        let output = output_enumerate.next().unwrap();
-        let output_check = balanced_brackets::is_balanced(&line);
+        let output_check = balanced_brackets::is_balanced(&input);
 
         if output != bool_to_word(output_check) {
-            println!("{} {}", output, line);
+            println!("{} {}", output, input);
         }
     }
     bar.finish();
