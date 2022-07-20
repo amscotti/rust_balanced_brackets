@@ -19,7 +19,7 @@ fn parse(input: char) -> Type {
         '}' => Type::Close(Bracket::Curly),
         '(' => Type::Open(Bracket::Round),
         ')' => Type::Close(Bracket::Round),
-        c => Type::Other(c.clone()),
+        c => Type::Other(c),
     }
 }
 
