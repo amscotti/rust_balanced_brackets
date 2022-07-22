@@ -1,29 +1,42 @@
-use std::env;
+use clap::Parser;
 use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
 
 mod balanced_brackets;
 
+/// Simple program to check if an input file of brackets are balanced
+#[derive(Parser, Debug)]
+#[clap(version, about, long_about = None)]
+struct Args {
+    /// Path to input file
+    #[clap(short, long, value_parser)]
+    input: String,
+
+    /// Path to check file
+    #[clap(short, long, value_parser)]
+    check: String,
+}
+
 const YES: &str = "YES";
 
-fn balanced_brackets_load(input: File, output: File) {
-    let output_list = BufReader::new(&output)
-        .lines()
-        .flat_map(|l| l.ok())
-        .collect::<Vec<String>>();
-
+fn balanced_brackets_load(input: File, check: File) {
     let input_list = BufReader::new(&input)
         .lines()
         .skip(1)
         .flat_map(|l| l.ok())
         .collect::<Vec<String>>();
 
+    let check_list = BufReader::new(&check)
+        .lines()
+        .flat_map(|l| l.ok())
+        .collect::<Vec<String>>();
+
     let mismatched = input_list
         .iter()
-        .zip(output_list.iter())
-        .map(|(i, o)| (i, balanced_brackets::is_balanced(i), o == YES))
-        .filter(|(_, i, o)| i != o)
+        .zip(check_list.iter())
+        .map(|(i, c)| (i, balanced_brackets::is_balanced(i), c == YES))
+        .filter(|(_, i, c)| i != c)
         .collect::<Vec<(&String, bool, bool)>>();
 
     println!(
@@ -43,10 +56,10 @@ fn balanced_brackets_load(input: File, output: File) {
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
+    let args = Args::parse();
 
-    let input = File::open(&args[1]).expect("Unable to find input file");
-    let output = File::open(&args[2]).expect("Unable to find output file");
+    let input = File::open(&args.input).expect("Unable to find input file");
+    let check = File::open(&args.check).expect("Unable to find output file");
 
-    balanced_brackets_load(input, output);
+    balanced_brackets_load(input, check);
 }
