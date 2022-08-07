@@ -1,4 +1,5 @@
 use clap::Parser;
+use rayon::prelude::*;
 use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
@@ -33,8 +34,8 @@ fn balanced_brackets_load(input: File, check: File) {
         .collect::<Vec<String>>();
 
     let mismatched = input_list
-        .iter()
-        .zip(check_list.iter())
+        .par_iter()
+        .zip(check_list.par_iter())
         .map(|(i, c)| (i, balanced_brackets::is_balanced(i), c == YES))
         .filter(|(_, i, c)| i != c)
         .collect::<Vec<(&String, bool, bool)>>();
