@@ -1,9 +1,17 @@
 [package]
 name = "rust_balanced_brackets"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Anthony Scotti <anthony.m.scotti@gmail.com>"]
 edition = "2021"
 
 [dependencies]
 clap = { version = "3.2.14", features = ["derive"] }
 rayon = "1.5"
+
+[lib]
+name = "balanced_brackets"
+path = "src/lib.rs"
+
+[[bin]]
+name = "balanced_brackets_runner"
+path = "src/bin/balanced_brackets_runner.rs"

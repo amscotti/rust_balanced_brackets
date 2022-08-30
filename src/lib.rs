@@ -1,3 +1,5 @@
+use std::{convert::Infallible, str::FromStr};
+
 #[derive(PartialEq, Eq)]
 enum Bracket {
     Round,
@@ -11,39 +13,64 @@ enum Type {
     Other(char),
 }
 
-fn parse(input: char) -> Type {
-    match input {
-        '[' => Type::Open(Bracket::Square),
-        ']' => Type::Close(Bracket::Square),
-        '{' => Type::Open(Bracket::Curly),
-        '}' => Type::Close(Bracket::Curly),
-        '(' => Type::Open(Bracket::Round),
-        ')' => Type::Close(Bracket::Round),
-        c => Type::Other(c),
-    }
-}
-
-fn verify(input: Vec<Type>) -> bool {
-    let mut stack: Vec<Bracket> = Vec::new();
-
-    for c in input {
-        match c {
-            Type::Open(c) => stack.push(c),
-            Type::Close(c) => match stack.last() {
-                Some(s) if &c == s => {
-                    stack.pop();
-                }
-                _ => return false,
-            },
-            Type::Other(_) => continue,
+impl From<char> for Type {
+    fn from(input: char) -> Self {
+        match input {
+            '[' => Type::Open(Bracket::Square),
+            ']' => Type::Close(Bracket::Square),
+            '{' => Type::Open(Bracket::Curly),
+            '}' => Type::Close(Bracket::Curly),
+            '(' => Type::Open(Bracket::Round),
+            ')' => Type::Close(Bracket::Round),
+            c => Type::Other(c),
         }
     }
-
-    stack.is_empty()
 }
 
+struct BracketList(Vec<Type>);
+
+impl FromStr for BracketList {
+    type Err = Infallible;
+
+    fn from_str(s: &str) -> Result<Self, Infallible> {
+        Ok(BracketList(
+            s.chars().map(|c| c.into()).collect::<Vec<Type>>(),
+        ))
+    }
+}
+
+impl BracketList {
+    pub fn verify(self) -> bool {
+        let mut stack: Vec<Bracket> = Vec::new();
+
+        for c in self.0 {
+            match c {
+                Type::Open(c) => stack.push(c),
+                Type::Close(c) => match stack.last() {
+                    Some(s) if &c == s => {
+                        stack.pop();
+                    }
+                    _ => return false,
+                },
+                Type::Other(_) => continue,
+            }
+        }
+
+        stack.is_empty()
+    }
+}
+
+
+/// Check to see if an input text is a Balance set of bracket
+///
+/// ```rust
+/// assert!(balanced_brackets::is_balanced("([{}({}[])])"));
+/// ```
 pub fn is_balanced(input: &str) -> bool {
-    verify(input.chars().map(parse).collect::<Vec<Type>>())
+    match input.parse::<BracketList>() {
+        Ok(brackets) => brackets.verify(),
+        Err(_) => false,
+    }
 }
 
 #[cfg(test)]

@@ -4,8 +4,6 @@ use std::fs::File;
 use std::io::BufRead;
 use std::io::BufReader;
 
-mod balanced_brackets;
-
 /// Simple program to check if an input file of brackets are balanced
 #[derive(Parser, Debug)]
 #[clap(version, about, long_about = None)]
@@ -60,7 +58,7 @@ fn main() {
     let args = Args::parse();
 
     let input = File::open(&args.input).expect("Unable to find input file");
-    let check = File::open(&args.check).expect("Unable to find output file");
+    let check = File::open(&args.check).expect("Unable to find check file");
 
     balanced_brackets_load(input, check);
 }
