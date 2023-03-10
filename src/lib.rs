@@ -1,16 +1,17 @@
 use std::{convert::Infallible, str::FromStr};
 
-#[derive(PartialEq, Eq)]
+#[derive(Debug, PartialEq)]
 enum Bracket {
     Round,
     Square,
     Curly,
 }
 
+#[derive(Debug, PartialEq)]
 enum Type {
     Open(Bracket),
     Close(Bracket),
-    Other(char),
+    Other,
 }
 
 impl From<char> for Type {
@@ -22,24 +23,24 @@ impl From<char> for Type {
             '}' => Type::Close(Bracket::Curly),
             '(' => Type::Open(Bracket::Round),
             ')' => Type::Close(Bracket::Round),
-            c => Type::Other(c),
+            _ => Type::Other,
         }
     }
 }
 
-struct BracketList(Vec<Type>);
+struct BracketSequence(Vec<Type>);
 
-impl FromStr for BracketList {
+impl FromStr for BracketSequence {
     type Err = Infallible;
 
     fn from_str(s: &str) -> Result<Self, Infallible> {
-        Ok(BracketList(
+        Ok(BracketSequence(
             s.chars().map(|c| c.into()).collect::<Vec<Type>>(),
         ))
     }
 }
 
-impl BracketList {
+impl BracketSequence {
     pub fn verify(self) -> bool {
         let mut stack: Vec<Bracket> = Vec::new();
 
@@ -52,7 +53,7 @@ impl BracketList {
                     }
                     _ => return false,
                 },
-                Type::Other(_) => continue,
+                Type::Other => continue,
             }
         }
 
@@ -60,14 +61,13 @@ impl BracketList {
     }
 }
 
-
 /// Check to see if an input text is a Balance set of bracket
 ///
 /// ```rust
 /// assert!(balanced_brackets::is_balanced("([{}({}[])])"));
 /// ```
 pub fn is_balanced(input: &str) -> bool {
-    match input.parse::<BracketList>() {
+    match input.parse::<BracketSequence>() {
         Ok(brackets) => brackets.verify(),
         Err(_) => false,
     }
@@ -76,6 +76,17 @@ pub fn is_balanced(input: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn from_char() {
+        assert_eq!(Type::from('['), Type::Open(Bracket::Square));
+        assert_eq!(Type::from(']'), Type::Close(Bracket::Square));
+        assert_eq!(Type::from('{'), Type::Open(Bracket::Curly));
+        assert_eq!(Type::from('}'), Type::Close(Bracket::Curly));
+        assert_eq!(Type::from('('), Type::Open(Bracket::Round));
+        assert_eq!(Type::from(')'), Type::Close(Bracket::Round));
+        assert_eq!(Type::from('a'), Type::Other);
+    }
 
     #[test]
     fn paired_square_brackets() {
@@ -154,5 +165,11 @@ mod tests {
         let input = "\\left(\\begin{array}{cc} \\frac{1}{3} & x\\\\ \\mathrm{e}^{x} &... x^2 \
                      \\end{array}\\right)";
         assert!(is_balanced(input));
+    }
+
+    #[test]
+    fn large_input() {
+        let input = "(".repeat(100_000) + &")".repeat(100_000);
+        assert!(is_balanced(&input));
     }
 }

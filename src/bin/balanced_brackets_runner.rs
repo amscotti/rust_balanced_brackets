@@ -6,7 +6,7 @@ use std::io::BufReader;
 
 /// Simple program to check if an input file of brackets are balanced
 #[derive(Parser, Debug)]
-#[clap(version, about, long_about = None)]
+#[clap(version, about)]
 struct Args {
     /// Path to input file
     #[clap(short, long, value_parser)]
